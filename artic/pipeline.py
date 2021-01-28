@@ -92,21 +92,25 @@ def init_pipeline_parser():
     # minion
     parser_minion = subparsers.add_parser('minion', help='Run the alignment/variant-call/consensus pipeline')
     parser_minion.add_argument(
-        'scheme', metavar='scheme', help='The name of the scheme.')
+        'scheme', metavar='scheme', help='The name of the scheme')
     parser_minion.add_argument(
-        'sample', metavar='sample', help='The name of the sample.')
+        'sample', metavar='sample', help='The name of the sample')
     parser_minion.add_argument('--medaka', dest='medaka', action='store_true',
                                help='Use medaka instead of nanopolish for variants')
+    parser_minion.add_argument('--medaka-model', metavar='medaka_model', help='The model to use for medaka (required if using --medaka)')
+    parser_minion.add_argument('--no-longshot', dest='no_longshot', action='store_true', help='Do not use Longshot for variant filtering after medaka')
     parser_minion.add_argument('--minimap2', dest='minimap2', default=True,
                                action='store_true', help='Use minimap2 (default)')
     parser_minion.add_argument(
         '--bwa', dest='bwa', action='store_true', help='Use bwa instead of minimap2')
     parser_minion.add_argument('--normalise', dest='normalise', type=int,
-                               default=100, help='Normalise down to moderate coverage to save runtime.')
+                               default=100, help='Normalise down to moderate coverage to save runtime (default: %(default)d, deactivate with `--normalise 0`)')
     parser_minion.add_argument(
-        '--threads', type=int, default=8, help='Number of threads')
+        '--threads', type=int, default=8, help='Number of threads (default: %(default)d)')
     parser_minion.add_argument('--scheme-directory', metavar='scheme_directory',
-                               default='/artic/schemes', help='Default scheme directory')
+                               default='./primer-schemes', help='Default scheme directory')
+    parser_minion.add_argument('--scheme-version', metavar='scheme_version',
+                                default=1, help='Primer scheme version (default: %(default)d)')
     parser_minion.add_argument('--max-haplotypes', type=int, default=1000000,
                                metavar='max_haplotypes', help='max-haplotypes value for nanopolish')
     parser_minion.add_argument('--read-file', metavar='read_file',
@@ -115,8 +119,10 @@ def init_pipeline_parser():
     parser_minion.add_argument(
         '--sequencing-summary', help='Path to Guppy sequencing summary')
     parser_minion.add_argument('--skip-nanopolish', action='store_true')
-    parser_minion.add_argument('--no-indels', action='store_true')
+    parser_minion.add_argument('--no-indels', action='store_true', help='Do not report InDels (uses SNP-only mode of nanopolish/medaka)')
+    parser_minion.add_argument('--no-frameshifts', action='store_true', help='Remove variants which induce frameshifts (ignored when --no-indels set)')
     parser_minion.add_argument('--dry-run', action='store_true')
+    parser_minion.add_argument('--strict', action='store_true', help='Run with strict filtering of variants against primer scheme')
     parser_minion.set_defaults(func=run_subtool)
 
     # gather
